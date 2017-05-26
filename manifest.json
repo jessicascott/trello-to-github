@@ -1,0 +1,32 @@
+{
+  "manifest_version": 2,
+  "name": "Trello to Github",
+  "version": "0.1",
+  "background": {
+    "matches": [
+        "*://*.trello.com/c/*"
+    ],
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://trello.com/c/*", "http://trello.com/c/*"],
+      "js": ["trello.js"],
+      "all_frames": false
+    },
+    {
+      "matches": ["https://github.com/*", "http://github.com/*"],
+      "js": ["github.js"],
+      "run_at": "document_end",
+      "all_frames": true
+    }
+  ],
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "http://*/",
+    "https://*/"
+  ]
+}
