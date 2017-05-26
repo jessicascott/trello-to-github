@@ -91,10 +91,10 @@
 		if (document.getElementsByClassName('card-detail-title-assist').length) {
 			let title = document.getElementsByClassName('card-detail-title-assist')[0].innerText;
 			/* 
-				Get markdown from textarea instead of innerText from html
+				Get innerText from html instead of markdown from text area
 			*/
-			// let message = document.getElementsByClassName('js-card-desc')[0].innerText;
-			let message = document.getElementsByClassName('card-detail-edit')[0].childNodes[1].value;
+			let message = document.getElementsByClassName('js-card-desc')[0].innerText;
+			// let message = document.getElementsByClassName('card-detail-edit')[0].childNodes[1].value;
 			message = appendMessageBody(message);
 
 			let button = createSideButton();
