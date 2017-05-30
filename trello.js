@@ -1,4 +1,5 @@
 (global => {
+	let title, message;
 	/*
 		Add a footnote to the Github issue body
 		to link back to the Trello card
@@ -7,6 +8,39 @@
 		const cardUrl = window.location.href;
 		const footnote = '[Follow on Trello](' + cardUrl + ')';
 		return body + footnote;
+	};
+
+	/*
+		Copy title and markdown from 
+		Trello card
+	*/
+	const copyCard = () => {
+		/*
+			Grab title from card
+		*/
+		const titleElement = document.getElementsByClassName('card-detail-title-assist')[0];
+		title = titleElement.innerText;
+		/*
+			Simulate opening text area to get markdown
+		*/
+		document.getElementsByClassName('js-edit-desc')[0].click();
+		document.getElementsByClassName('js-card-desc')[0].classList.remove('hide-on-edit');
+
+		/* 
+			Get the value of the textarea 
+			(the markdown)
+		*/
+		message = document.getElementsByClassName('card-detail-edit')[0].childNodes[1].value;
+		/*
+			Simulate closing the area
+			now we have the markdown
+		*/
+		document.getElementsByClassName('js-card-desc')[0].classList.add('hide-on-edit');
+		document.getElementsByClassName('card-detail-title-assist')[0].click();
+		/*
+			Open popup modal
+		*/
+		document.getElementsByClassName('copy-to-github')[0].classList.add("is-shown");
 	};
 	
 	/*
@@ -17,7 +51,7 @@
 		const button = document.createElement('div');
 		button.innerHTML= `<a class="button-link" href="#" style="margin-bottom: 10px;"><span class="icon-sm plugin-icon" style="background-image: url('https://github.trello.services/images/icon.svg?color=999');"></span> Copy to github</a>`;
 		button.addEventListener("click", ()=> {
-			document.getElementsByClassName('copy-to-github')[0].classList.add("is-shown");
+			copyCard();
 		});
 		return button;
 	};
@@ -89,14 +123,6 @@
 			Check to see if the dom has finished loading trello card information
 		*/
 		if (document.getElementsByClassName('card-detail-title-assist').length) {
-			let title = document.getElementsByClassName('card-detail-title-assist')[0].innerText;
-			/* 
-				Get innerText from html instead of markdown from text area
-			*/
-			let message = document.getElementsByClassName('js-card-desc')[0].innerText;
-			// let message = document.getElementsByClassName('card-detail-edit')[0].childNodes[1].value;
-			message = appendMessageBody(message);
-
 			let button = createSideButton();
 			let popup = createPopup();
 			pushToView(button, popup);
