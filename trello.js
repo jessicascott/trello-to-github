@@ -1,5 +1,7 @@
 (global => {
 	let title, message;
+	const cardTitle = document.getElementsByClassName('card-detail-title-assist')[0];
+	const cardDescription = document.getElementsByClassName('js-card-desc')[0];
 	/*
 		Add a footnote to the Github issue body
 		to link back to the Trello card
@@ -18,25 +20,26 @@
 		/*
 			Grab title from card
 		*/
-		const titleElement = document.getElementsByClassName('card-detail-title-assist')[0];
+		const titleElement = cardTitle;
 		title = titleElement.innerText;
 		/*
 			Simulate opening text area to get markdown
 		*/
 		document.getElementsByClassName('js-edit-desc')[0].click();
-		document.getElementsByClassName('js-card-desc')[0].classList.remove('hide-on-edit');
+		cardDescription.classList.remove('hide-on-edit');
 
 		/* 
 			Get the value of the textarea 
 			(the markdown)
 		*/
 		message = document.getElementsByClassName('card-detail-edit')[0].childNodes[1].value;
+		message = appendMessageBody(message);
 		/*
 			Simulate closing the area
 			now we have the markdown
 		*/
-		document.getElementsByClassName('js-card-desc')[0].classList.add('hide-on-edit');
-		document.getElementsByClassName('card-detail-title-assist')[0].click();
+		cardDescription.classList.add('hide-on-edit');
+		cardTitle.click();
 		/*
 			Open popup modal
 		*/
@@ -49,9 +52,20 @@
 	*/
 	const createSideButton = () => {
 		const button = document.createElement('div');
-		button.innerHTML= `<a class="button-link" href="#" style="margin-bottom: 10px;"><span class="icon-sm plugin-icon" style="background-image: url('https://github.trello.services/images/icon.svg?color=999');"></span> Copy to github</a>`;
+		const loggedInToGithub = checkGithubLoggedIn();
+		const buttonText = loggedInToGithub ? 'Copy to Github' : 'Log in to Github';
+		button.innerHTML= `
+			<a class="button-link" href="#" style="margin-bottom: 10px;">
+				<span class="icon-sm plugin-icon" style="background-image: url('https://github.trello.services/images/icon.svg?color=999');"></span> 
+				${buttonText}
+			</a>`;
 		button.addEventListener("click", ()=> {
-			copyCard();
+			if (loggedInToGithub) {
+				copyCard();
+			} else {
+				const win = window.open('https://github.com/login', '_blank');
+				win.focus();
+			}
 		});
 		return button;
 	};
@@ -71,7 +85,7 @@
 				<div class="pop-over-content js-pop-over-content js-tab-parent">
 						<div class="form-grid">
 							<label>Owner/Repository name</label>
-							<input class="js-short-url js-autofocus" id="repo_address" type="text" placeholder="twitter/bootstrap" style="background: transparent;">
+							<input class="js-short-url js-autofocus" id="repo_address" type="text" placeholder="twitter/bootstrap" style="background: transparent">
 						</div>
 						<input class="primary wide js-submit copy-to-github-submit" type="submit" value="Copy">
 				</div>
@@ -114,6 +128,14 @@
 		sidebar.setAttribute("style", "overflow: visible");
 	}
 
+	const checkGithubLoggedIn = () => {
+		const xhr = new XMLHttpRequest();
+
+		xhr.open("GET", "https://github.com/issues", false);
+		xhr.send();
+		return xhr.status !== 404;
+	}
+
 	/*
 		Make sure the extension only fires when the user is looking at a trello card
 		and that a button doesn't already exist
@@ -122,7 +144,8 @@
 		/*
 			Check to see if the dom has finished loading trello card information
 		*/
-		if (document.getElementsByClassName('card-detail-title-assist').length) {
+		if (cardTitle) {
+			
 			let button = createSideButton();
 			let popup = createPopup();
 			pushToView(button, popup);
