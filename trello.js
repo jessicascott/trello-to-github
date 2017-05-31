@@ -52,20 +52,13 @@
 	*/
 	const createSideButton = () => {
 		const button = document.createElement('div');
-		const loggedInToGithub = checkGithubLoggedIn();
-		const buttonText = loggedInToGithub ? 'Copy to Github' : 'Log in to Github';
 		button.innerHTML= `
 			<a class="button-link" href="#" style="margin-bottom: 10px;">
 				<span class="icon-sm plugin-icon" style="background-image: url('https://github.trello.services/images/icon.svg?color=999');"></span> 
-				${buttonText}
+				Copy to Github
 			</a>`;
 		button.addEventListener("click", ()=> {
-			if (loggedInToGithub) {
-				copyCard();
-			} else {
-				const win = window.open('https://github.com/login', '_blank');
-				win.focus();
-			}
+			copyCard();
 		});
 		return button;
 	};
@@ -126,14 +119,6 @@
 
 		cardWindow.setAttribute("style", "overflow: visible; display: block;");
 		sidebar.setAttribute("style", "overflow: visible");
-	}
-
-	const checkGithubLoggedIn = () => {
-		const xhr = new XMLHttpRequest();
-
-		xhr.open("GET", "https://github.com/issues", false);
-		xhr.send();
-		return xhr.status !== 404;
 	}
 
 	/*
