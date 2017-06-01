@@ -8,7 +8,7 @@
 	*/
 	const appendMessageBody = (body) => {
 		const cardUrl = window.location.href;
-		const footnote = '[Follow on Trello](' + cardUrl + ')';
+		const footnote = '> [Follow on Trello](' + cardUrl + ')';
 		return body + footnote;
 	};
 
