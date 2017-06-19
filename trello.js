@@ -1,5 +1,5 @@
 (global => {
-	let title, message;
+	let title, message, checklists;
 	const cardTitle = document.getElementsByClassName('card-detail-title-assist')[0];
 	const cardDescription = document.getElementsByClassName('js-card-desc')[0];
 	/*
@@ -8,8 +8,31 @@
 	*/
 	const appendMessageBody = (body) => {
 		const cardUrl = window.location.href;
-		const footnote = '> [Follow on Trello](' + cardUrl + ')';
+		const footnote = `
+
+---
+ℹ️ [This card was copied from Trello](${cardUrl})`;
 		return body + footnote;
+	};
+
+	/*
+		Copy over any checklists
+	*/
+	const includeChecklists = (body) => {
+		let markdown = [];
+		for (let i = 0; i < checklists.length; i++) {
+			let title = `
+### ${checklists[i].getElementsByTagName('h3')[0].innerText} `;
+			let items = checklists[i].getElementsByClassName('checklist-item');
+			let markdownItems = [];
+			for (let j = 0; j < items.length; j++) {
+				let check = items[j].classList.value.includes('checklist-item-state-complete') ? 'x' : ' ';
+				markdownItems.push(`
+- [${check}] ${items[j].innerText}`);
+			}
+			markdown.push(`${title} ${markdownItems.join(' ')}`);
+		}
+		return body + markdown;
 	};
 
 	/*
@@ -17,6 +40,8 @@
 		Trello card
 	*/
 	const copyCard = () => {
+		
+
 		/*
 			Grab title from card
 		*/
@@ -33,6 +58,9 @@
 			(the markdown)
 		*/
 		message = document.getElementsByClassName('card-detail-edit')[0].childNodes[1].value;
+		if (document.getElementById('include_checklists').checked) {
+			message = includeChecklists(message);
+		}
 		message = appendMessageBody(message);
 		/*
 			Simulate closing the area
@@ -40,10 +68,6 @@
 		*/
 		cardDescription.classList.add('hide-on-edit');
 		cardTitle.click();
-		/*
-			Open popup modal
-		*/
-		document.getElementsByClassName('copy-to-github')[0].classList.add("is-shown");
 	};
 	
 	/*
@@ -58,7 +82,16 @@
 				Copy to Github
 			</a>`;
 		button.addEventListener("click", ()=> {
-			copyCard();
+			// copyCard();
+
+			if (!document.getElementById('include_checklists')) {
+				checkForChecklists();
+			}
+
+			/*
+				Open popup modal
+			*/
+			document.getElementsByClassName('copy-to-github')[0].classList.add("is-shown");
 		});
 		return button;
 	};
@@ -74,19 +107,30 @@
 				<span class="pop-over-header-title">Copy to Github</span>
 				<a href="#" class="pop-over-header-close-btn icon-sm icon-close copy-to-github-close"></a>
 			</div>
-			<div>
-				<div class="pop-over-content js-pop-over-content js-tab-parent">
-						<div class="form-grid">
-							<label>Owner/Repository name</label>
-							<input class="js-short-url js-autofocus" id="repo_address" type="text" placeholder="twitter/bootstrap" style="background: transparent">
-						</div>
-						<input class="primary wide js-submit copy-to-github-submit" type="submit" value="Copy">
-				</div>
+			<div class="pop-over-content js-pop-over-content js-tab-parent">
+					<div class="form-grid">
+						<label>Owner/Repository name</label>
+						<input class="js-short-url js-autofocus" id="repo_address" type="text" placeholder="twitter/bootstrap" style="background: transparent">
+					</div>
+					<input class="primary wide js-submit copy-to-github-submit" type="submit" value="Copy">
 			</div>
 		</div>`;
 		popup.setAttribute("style", "position: relative");
 		return popup;
 	};
+
+	const checkForChecklists = () => {
+		checklists = document.getElementsByClassName('checklist');
+		const checklistTemplate = `<div class="check-div u-clearfix">
+			<input id="include_checklists" type="checkbox" name="checklists" checked="checked">
+			<label for="include_checklists">Include checklist${checklists.length > 1 ? 's' : ''} <span class="quiet">(${checklists.length})</span></label>
+		</div>`;
+		if (checklists.length) {
+			const popupForm = document.getElementsByClassName('copy-to-github')[0].children[1];
+			let formGrid = popupForm.children[0];
+			formGrid.innerHTML = formGrid.innerHTML + checklistTemplate;
+		}
+	}
 
 	/*
 		Insert the button and popup modal 
@@ -159,6 +203,7 @@
 			*/
 			let copy = document.getElementsByClassName('copy-to-github-submit')[0];
 			copy.addEventListener("click", () => {
+				copyCard();
 				openGithub(title, message);
 			});
 		}
