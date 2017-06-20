@@ -11,7 +11,7 @@
 		const footnote = `
 
 ---
-ℹ️ [This card was copied from Trello](${cardUrl})`;
+:information_source: [This card was copied from Trello](${cardUrl})`;
 		return body + footnote;
 	};
 
