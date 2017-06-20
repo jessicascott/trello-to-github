@@ -58,7 +58,7 @@
 			(the markdown)
 		*/
 		message = document.getElementsByClassName('card-detail-edit')[0].childNodes[1].value;
-		if (document.getElementById('include_checklists').checked) {
+		if (document.getElementById('include_checklists') && document.getElementById('include_checklists').checked) {
 			message = includeChecklists(message);
 		}
 		message = appendMessageBody(message);
